@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="mfe" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>PELAGIC // Rodrig - Lamer ek Lapes | Anthony Francois</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            abyss: '#040b14',
+            bridge: '#0a1626',
+            panel: '#0f2036',
+            cyanMarine: '#00e5ff',
+            emeraldMarine: '#10b981',
+            amberMarine: '#f59e0b',
+            crimsonMarine: '#ef4444',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg-app: #040b14;
+      --bg-card: #0b1829;
+      --bg-elevated: #11243d;
+      --border-subtle: rgba(56, 189, 248, 0.18);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-cyan: #00e5ff;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html.light-glare {
+      --bg-app: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-elevated: #e2e8f0;
+      --border-subtle: rgba(15, 23, 42, 0.16);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-cyan: #0284c7;
+    }
+
+    body {
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: contain;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .marine-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
+    }
+
+    html.light-glare .marine-card {
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+    }
+
+    /* Hide scrollbars on horizontal pill strips while keeping scroll */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Pulse animation for active fish hotspots and radar */
+    @keyframes sonarPulse {
+      0% { transform: scale(0.95); opacity: 0.85; }
+      70% { transform: scale(1.8); opacity: 0; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .sonar-ring {
+      animation: sonarPulse 2.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+
+    /* Bottom nav safe area padding */
+    .pb-mobile-nav {
+      padding-bottom: calc(5.25rem + var(--safe-bottom));
+    }
+    @media (min-width: 900px) {
+      .pb-mobile-nav {
+        padding-bottom: 2rem;
+      }
+    }
+
+    .mobile-nav-bar {
+      padding-bottom: calc(0.4rem + var(--safe-bottom));
+    }
+
+    /* Custom touch range / scrub feedback */
+    #tideChartCanvas, #rodriguesMapCanvas {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- STICKY TOP BRIDGE HEADER -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-[#040b14]/90 dark:bg-[#040b14]/90 light-glare:bg-white/95 border-b border-sky-500/20 transition-colors" id="topHeader">
+    <div class="max-w-7xl mx-auto px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      
+      <!-- Brand & Live MUT Clock -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
+          <!-- Compass / Radar Icon -->
+          <svg class="w-6 h-6 text-slate-950" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold tracking-tight text-base sm:text-lg leading-none">PELAGIC</span>
+            <span class="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-400 border border-cyan-400/30">RODRIG</span>
+          </div>
+          <div class="flex items-center gap-2 mt-1 text-xs font-mono opacity-80 tabular-nums">
+            <span id="mutClock">--:--:-- MUT</span>
+            <span>•</span>
+            <span id="dataSourceBadge" class="inline-flex items-center gap-1 text-emerald-400 font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              DONE AN TAN REEL
+            </span>
+          </div>
+          <div class="mt-1 text-[10px] font-semibold tracking-wide text-cyan-300/80">Kreasion par Anthony Francois</div>
+        </div>
+      </div>
+
+      <!-- Right Controls: Sea Status Pill, Lalimier Mode Toggle, Refresh -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Sea Condition Status Pill -->
+        <button onclick="switchMobileTab('overview')" id="seaStatusPill" class="min-h-[44px] px-3 rounded-xl font-bold text-xs sm:text-sm tracking-wide flex items-center gap-1.5 bg-amber-500/15 text-amber-400 border border-amber-500/40 active:scale-95 transition">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span id="seaStatusText">PRAN PREKOSION</span>
+        </button>
+
+        <!-- Daylight / Nwit Toggle -->
+        <button id="themeToggleBtn" onclick="toggleGlareMode()" aria-label="Sanz ant Lalimier ek Nwit" class="min-h-[44px] min-w-[44px] px-2.5 rounded-xl marine-card flex items-center justify-center gap-1.5 text-xs font-semibold active:scale-95 transition" title="Sanz ant mòd Nwit ek Lalimier">
+          <svg id="themeIconSun" class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+          <span class="hidden md:inline" id="themeLabel">Lalimier</span>
+        </button>
+
+        <!-- One-Tap Telemetry Refresh -->
+        <button id="refreshBtn" onclick="refreshTelemetry()" aria-label="Metazour bann done lamer" class="min-h-[44px] min-w-[44px] rounded-xl marine-card flex items-center justify-center text-cyan-400 active:scale-95 transition" title="Metazour bann done lamer">
+          <svg id="refreshIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Full-Width Mobile / Compact Desktop Sector Selector Bar -->
+      <div class="w-full pt-1 flex items-center gap-2">
+        <label for="sectorSelect" class="sr-only">Swazir enn landrwa lamer Rodrig</label>
+        <div class="relative flex-1">
+          <select id="sectorSelect" onchange="changeSector(this.value)" class="w-full min-h-[44px] pl-3.5 pr-10 rounded-xl marine-card text-sm sm:text-base font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer">
+            <option value="port_mathurin">📍 Port Mathurin &amp; North Pass (19.67°S, 63.42°E)</option>
+            <option value="grand_bassin">🌊 Passe Grand Bassin &amp; Rivière Banane (19.67°S, 63.47°E)</option>
+            <option value="mourouk">🏝️ Mourouk &amp; SE Lagoon Flats (19.76°S, 63.46°E)</option>
+            <option value="baie_du_nord">🐢 Baie du Nord &amp; Île aux Cocos (19.71°S, 63.31°E)</option>
+            <option value="hawkins_bank">🎣 Hawkins Bank FAD / boue lapess (19.45°S, 63.28°E)</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-cyan-400">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- TOAST NOTIFICATION BANNER (Replaces alert) -->
+  <div id="toastBanner" class="fixed top-28 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-2 w-[92%] max-w-md">
+    <div class="bg-slate-900/95 text-white border border-cyan-400/50 shadow-2xl rounded-2xl px-4 py-3 flex items-center gap-3 backdrop-blur-md">
+      <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shrink-0"></span>
+      <p id="toastMessage" class="text-sm font-medium">Bann done lamer inn metazour</p>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-5 pt-3 pb-mobile-nav">
+    
+    <!-- Desktop Grid Layout (>=900px shows multi-column bridge; <900px switches tabs cleanly) -->
+    <div class="grid grid-cols-1 min-[900px]:grid-cols-12 gap-4 items-start">
+
+      <!-- ============================================================== -->
+      <!-- TAB 1: OVERVIEW & DANGEROUS SEA ALERTS (Left/Top on Desktop)   -->
+      <!-- ============================================================== -->
+      <section id="tab-overview" class="tab-panel min-[900px]:col-span-5 space-y-4">
+        
+        <!-- Dynamic Dangerous Sea & Pass Condition Alert Card -->
+        <div id="seaAlertCard" class="rounded-2xl p-4 border-2 border-amber-500/50 bg-gradient-to-br from-amber-500/15 via-orange-950/20 to-transparent shadow-lg">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <div id="alertIconBox" class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+                </svg>
+              </div>
+              <div>
+                <span id="alertSeverityBadge" class="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-400">ALERT PASAZ EK RESIF</span>
+                <h2 id="alertHeadline" class="font-bold text-base sm:text-lg leading-tight mt-0.5">Lamer sekwe dan pasaz</h2>
+              </div>
+            </div>
+          </div>
+          <p id="alertDetails" class="text-sm opacity-90 mt-2.5 leading-relaxed">
+            Kan delo pe sorti ek divan Sid-Es pe soufle, bann gro vag kapav form dan Passe Grand Bassin ek Passe St. François. Fer atansion dan pasaz ek gard ase delo anba bato.
+          </p>
+          <div class="mt-3 pt-2.5 border-t border-amber-500/20 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+            <span id="alertPassRisk" class="text-amber-300 font-semibold">DANZE PASAZ: MODERE (1.9m)</span>
+            <span id="alertLagoonChop" class="opacity-80">LAGON: VAG 0.6m</span>
+          </div>
+        </div>
+
+        <!-- 2x2 Big-Digit Marine Condition Summary Cards -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Card 1: Swell & Waves -->
+          <div class="marine-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs font-semibold opacity-75">
+              <span>VAG DEOR</span>
+              <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+              </svg>
+            </div>
+            <div class="my-2">
+              <div class="text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight">
+                <span id="metricWaveHeight">1.8</span><span class="text-base font-semibold opacity-70 ml-0.5">m</span>
+              </div>
+              <div id="metricSwellPeriod" class="text-xs font-mono text-cyan-400 mt-0.5">11s • ESE (115°)</div>
+            </div>
+            <div id="metricLagoonWave" class="text-[11px] opacity-75 font-medium">Dan lagon deryer resif: ~0.5m</div>
+          </div>
+
+          <!-- Card 2: Divan ek gro rafal -->
+          <div class="marine-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs font-semibold opacity-75">
+              <span>DIVAN</span>
+              <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+              </svg>
+            </div>
+            <div class="my-2">
+              <div class="text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight">
+                <span id="metricWindSpeed">17</span><span class="text-base font-semibold opacity-70 ml-0.5">kt</span>
+              </div>
+              <div id="metricWindDir" class="text-xs font-mono text-emerald-400 mt-0.5">ESE 112° • gro rafal 23kt</div>
+            </div>
+            <div id="metricBeaufort" class="text-[11px] opacity-75 font-medium">Beaufort 5 • Divan ase for</div>
+          </div>
+
+          <!-- Card 3: Prosenn lamare (Port Mathurin) -->
+          <button onclick="switchMobileTab('tides')" class="marine-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between text-left active:scale-[0.98] transition">
+            <div class="flex items-center justify-between text-xs font-semibold opacity-75 w-full">
+              <span>PROSEN LAMAR</span>
+              <span id="metricTideStateBadge" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-cyan-500/20 text-cyan-400">LAMARE PE MONTE</span>
+            </div>
+            <div class="my-2">
+              <div class="text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight" id="metricNextTideTime">13:42</div>
+              <div id="metricNextTideHeight" class="text-xs font-mono text-cyan-400 mt-0.5">LAMARE PLENN • 1.48m (+0.9m)</div>
+            </div>
+            <div class="text-[11px] opacity-75 font-medium flex items-center justify-between w-full">
+              <span>Port Mathurin</span>
+              <span class="text-cyan-400 font-semibold">Grafik →</span>
+            </div>
+          </button>
+
+          <!-- Card 4: Indis aktivite lapes -->
+          <button onclick="switchMobileTab('map')" class="marine-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between text-left active:scale-[0.98] transition">
+            <div class="flex items-center justify-between text-xs font-semibold opacity-75 w-full">
+              <span>NIVO LAPE</span>
+              <span class="text-emerald-400 font-mono text-[11px] font-bold">EXELAN</span>
+            </div>
+            <div class="my-2">
+              <div class="text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight text-emerald-400">
+                <span id="metricBiteScore">86</span><span class="text-base font-semibold opacity-70">/100</span>
+              </div>
+              <div id="metricTargetSpecies" class="text-xs font-medium mt-0.5 truncate">GT, Dogtooth, Wahoo</div>
+            </div>
+            <div class="text-[11px] opacity-75 font-medium flex items-center justify-between w-full">
+              <span id="metricTANPERATIR SIRFAS">Tanperatir sirfas delo 26.4°C • 1015 hPa</span>
+              <span class="text-emerald-400 font-semibold">Landrwa →</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Secondary Telemetry Strip (TANPERATIR SIRFAS, Barometer, Visibility, Moon) -->
+        <div class="marine-card rounded-2xl p-3.5 grid grid-cols-3 gap-2 text-center divide-x divide-sky-500/15">
+          <div>
+            <div class="text-[11px] font-semibold opacity-65 uppercase">Tanperatir delo</div>
+            <div id="stripTANPERATIR SIRFAS" class="text-base sm:text-lg font-bold font-mono tabular-nums mt-0.5 text-cyan-400">26.4°C</div>
+          </div>
+          <div>
+            <div class="text-[11px] font-semibold opacity-65 uppercase">Presion atmosferik</div>
+            <div id="stripPresion atmosferik" class="text-base sm:text-lg font-bold font-mono tabular-nums mt-0.5">1015 hPa</div>
+          </div>
+          <div>
+            <div class="text-[11px] font-semibold opacity-65 uppercase">Lalin / Solunar</div>
+            <div id="stripMoon" class="text-base sm:text-lg font-bold font-mono tabular-nums mt-0.5 text-amber-400">🌓 64%</div>
+          </div>
+        </div>
+
+        <!-- Akse rapid VHF 16 ek radar pwason -->
+        <div class="grid grid-cols-2 gap-3 min-[900px]:hidden">
+          <button onclick="switchMobileTab('map')" class="min-h-[52px] rounded-2xl bg-cyan-500 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>
+            </svg>
+            Ouver Radar Pwason
+          </button>
+          <button onclick="switchMobileTab('vhf')" class="min-h-[52px] rounded-2xl bg-rose-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-rose-600/25 active:scale-95 transition">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            VHF Kanal 16 / Gard Lakot
+          </button>
+        </div>
+
+        <!-- Bann landrwa lapes Rodrig (tap pou al lor kart) -->
+        <div class="marine-card rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-base">Bann Bon Landrwa pou Lapes dan Rodrig</h3>
+              <p class="text-xs opacity-70">Tap lor enn landrwa pou trouv profonder, ler lamare ek kouran</p>
+            </div>
+            <span class="text-xs font-mono px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 font-bold">7 MARKS</span>
+          </div>
+          <div id="hotspotQuickList" class="space-y-2.5">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- TAB 2: TACTICAL RODRIG CHART & FISH RADAR (Right on Desktop)-->
+      <!-- ============================================================== -->
+      <section id="tab-map" class="tab-panel hidden min-[900px]:block min-[900px]:col-span-7 space-y-4">
+        <div class="marine-card rounded-2xl overflow-hidden flex flex-col">
+          
+          <!-- Kontrol kart -->
+          <div class="p-3 sm:p-4 border-b border-sky-500/15 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="font-bold text-base sm:text-lg">Kart Profonder ek Radar Pwason Rodrig</h2>
+              </div>
+              <p class="text-xs opacity-70">Tap enn mark ouswa pwason • Glise pou bouze • +/- pou agrandi</p>
+            </div>
+
+            <!-- Layer Toggle Pills (Touch-Friendly 44px height) -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full py-0.5">
+              <button onclick="toggleMapLayer('hotspots')" id="layerBtn-hotspots" class="min-h-[40px] px-3 rounded-xl text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-400/40 whitespace-nowrap transition">
+                🐟 Landrwa Lapes
+              </button>
+              <button onclick="toggleMapLayer('reef')" id="layerBtn-reef" class="min-h-[40px] px-3 rounded-xl text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-400/40 whitespace-nowrap transition">
+                🪸 Resif ek Rezerv marin
+              </button>
+              <button onclick="toggleMapLayer('hazards')" id="layerBtn-hazards" class="min-h-[40px] px-3 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-400/40 whitespace-nowrap transition">
+                ⚠️ Danze dan Pasaz
+              </button>
+              <button onclick="toggleMapLayer('currents')" id="layerBtn-currents" class="min-h-[40px] px-3 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 whitespace-nowrap transition">
+                🌊 Vag ek Kouran
+              </button>
+            </div>
+          </div>
+
+          <!-- Kart interaktif -->
+          <div class="relative w-full h-[54vh] min-h-[380px] max-h-[620px] bg-[#030912] select-none overflow-hidden" id="mapViewport">
+            <canvas id="rodriguesMapCanvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+
+            <!-- Top-Left Compass Rose & Coordinates Overlay -->
+            <div class="absolute top-3 left-3 pointer-events-none bg-slate-950/80 backdrop-blur-md border border-sky-500/25 rounded-xl px-3 py-2 text-xs font-mono text-slate-200">
+              <div class="text-cyan-400 font-bold" id="mapCursorCoords">19°42.5'S  063°25.6'E</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">WGS84 • Profonder: 50m / 200m / 1000m</div>
+            </div>
+
+            <!-- Kontrol pou agrandi, diminie ek re-santre kart -->
+            <div class="absolute right-3 top-3 flex flex-col gap-2">
+              <button onclick="zoomMap(1.28)" aria-label="Agrandi" class="w-12 h-12 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white border border-sky-400/30 shadow-lg flex items-center justify-center text-xl font-bold active:scale-90 transition">+</button>
+              <button onclick="zoomMap(0.78)" aria-label="Diminie" class="w-12 h-12 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white border border-sky-400/30 shadow-lg flex items-center justify-center text-xl font-bold active:scale-90 transition">−</button>
+              <button onclick="resetMapView()" aria-label="Re-mett kart koumansman" class="w-12 h-12 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-400 border border-sky-400/30 shadow-lg flex items-center justify-center active:scale-90 transition" title="Santre lor Rodrig">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Lezann kart -->
+            <div class="absolute bottom-3 left-3 right-3 pointer-events-none flex flex-wrap items-center justify-between gap-2">
+              <div class="bg-slate-950/85 backdrop-blur-md border border-sky-500/20 rounded-xl px-3 py-1.5 flex items-center gap-3 text-[11px] font-medium text-slate-200">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>Bon pou lapes</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>FAD / boue lapes</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>Danze dan pasaz</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-purple-400/50 border border-purple-400"></span>Rezerv marin</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detay landrwa lapes swazir -->
+          <div id="spotInspectorCard" class="p-4 bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-slate-900/40 border-t border-cyan-500/30">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="inspBadge" class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">LANDRWA AKTIF • 92% LAPES</span>
+                  <span id="inspCoords" class="text-xs font-mono opacity-75">19°40.1'S, 063°28.4'E</span>
+                </div>
+                <h3 id="inspTitle" class="text-lg font-extrabold mt-1">Desant Passe Grand Bassin</h3>
+                <p id="inspDesc" class="text-sm opacity-85 mt-1 leading-relaxed">
+                  Labout enn kanal profon kot delo lagon sorti ver miray resif 45m–140m. Gro Carangue (GT) ek Thon dents-de-chien kapav vinn la kan kouran pe sorti.
+                </p>
+              </div>
+              <button onclick="copySpotCoordinates()" class="min-h-[44px] px-3.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 border border-cyan-400/40 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                Kopie GPS
+              </button>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-sky-500/15 text-xs">
+              <div>
+                <span class="opacity-65 block">PWASON KI OU KAPAV ROD</span>
+                <span id="inspSpecies" class="font-bold text-emerald-400">GT, Dogtooth, Jobfish</span>
+              </div>
+              <div>
+                <span class="opacity-65 block">PROFONDER / FON</span>
+                <span id="inspDepth" class="font-bold font-mono">18m – 85m miray resif</span>
+              </div>
+              <div>
+                <span class="opacity-65 block">MEYER TEKNIK</span>
+                <span id="inspTactic" class="font-bold">Topwater Poppers / Jig</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3 pt-3 border-t border-sky-500/15 text-xs">
+              <div class="rounded-xl bg-slate-950/45 p-3">
+                <span class="opacity-65 block mb-1">LER LAMAR KI PLI BON</span>
+                <span id="inspTide" class="font-semibold text-cyan-300">Get ler lamare ek kouran avan ale.</span>
+              </div>
+              <div class="rounded-xl bg-slate-950/45 p-3">
+                <span class="opacity-65 block mb-1">KONDISION KI BON</span>
+                <span id="inspConditions" class="font-semibold">Verifye divan, vag ek kouran an tan reel.</span>
+              </div>
+              <div class="rounded-xl bg-slate-950/45 p-3">
+                <span class="opacity-65 block mb-1">ATANSION / SEKIRITE</span>
+                <span id="inspCaution" class="font-semibold text-amber-300">Pa rant dan pasaz si lamer move.</span>
+              </div>
+            </div>
+            <p class="text-[10px] opacity-60 mt-3 leading-relaxed">Not: bann pwin GPS ek profonder lor sa kart-la se indikatif, pa enn kart marin ofisiel. Bann score lapes se estimasion demonstrasion, pa prediksion live. Konfirm pozision, rezerv marin, profonder ek kondisyon avek kart marin/GPS ek lotorite lapes avan sorti.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- TAB 3: PORT MATHURIN LAMARS, SWELL & SOLUNAR                    -->
+      <!-- ============================================================== -->
+      <section id="tab-tides" class="tab-panel hidden min-[900px]:block min-[900px]:col-span-7 space-y-4">
+        
+        <!-- Grafik lamare Port Mathurin -->
+        <div class="marine-card rounded-2xl p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <h2 class="font-bold text-base sm:text-lg">Grafik Lamare Port Mathurin (24h MUT)</h2>
+              <p class="text-xs opacity-70">Touse ouswa glise lor grafik pou get oter lamer ek kouran dan pasaz</p>
+            </div>
+            <div class="text-right font-mono">
+              <div id="scrubTimeDisplay" class="text-sm font-bold text-cyan-400">LALER • 1.12m</div>
+              <div id="scrubFlowDisplay" class="text-[11px] opacity-75">Kouran pe rantre +1.4 kt</div>
+            </div>
+          </div>
+
+          <!-- Interactive Canvas Tide Graph -->
+          <div class="relative w-full h-52 sm:h-60 rounded-xl bg-[#040c17] border border-sky-500/20 overflow-hidden">
+            <canvas id="tideChartCanvas" class="w-full h-full block"></canvas>
+          </div>
+
+          <!-- 4 Daily Tide Extremes Grid -->
+          <div id="tideExtremesGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Previzion vag ek divan pou 24 er -->
+        <div class="marine-card rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-base">Previzion vag ek divan pou 24 er</h3>
+              <p class="text-xs opacity-70">Glise kote pou get previzion pou prosin 24 er</p>
+            </div>
+            <span class="text-xs font-mono text-cyan-400 font-semibold">UTC+4</span>
+          </div>
+          <div id="hourlyForecastStrip" class="flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Meilleur ler pou lapes zordi -->
+        <div class="rounded-2xl p-4 border border-emerald-400/35 bg-gradient-to-r from-emerald-500/15 to-cyan-500/10">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="text-xs font-bold tracking-wide text-emerald-300">🎣 MEYER LER POU LAPES ZORDI</div>
+              <div id="bestFishingWindow" class="text-xl sm:text-2xl font-extrabold mt-1">06:15 – 08:25 MUT</div>
+              <p id="bestFishingAdvice" class="text-xs opacity-80 mt-1">Ler boner gramatin: teste kot kouran pe bouze.</p>
+            </div>
+            <span id="bestFishingStatus" class="text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/20 text-emerald-300">PROSIN FENETR</span>
+          </div>
+          <p class="text-[10px] opacity-60 mt-3">Sa ler-la enn estimasion solunar. Li pa enn garanti ki pwason pou manze. Touletan verifye lamare, divan, vag ek sekirite avan sorti.</p>
+        </div>
+
+        <!-- Bann fenetr ler pwason manze -->
+        <div class="marine-card rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-base">Bann meyer ler pou lapes (Solunar)</h3>
+              <p class="text-xs opacity-70">Ler kot pwason kapav pli aktif • estimasion, pa garanti</p>
+            </div>
+            <span id="solunarMoonRating" class="px-2.5 py-1 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 text-xs font-bold">
+              ★★★☆☆ BON
+            </span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="solunarWindowsGrid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- TAB 4: VHF CHANNELS, NCG & PASS SEKIRTY                         -->
+      <!-- ============================================================== -->
+      <section id="tab-vhf" class="tab-panel hidden min-[900px]:block min-[900px]:col-span-5 space-y-4">
+        
+        <!-- SOS ek Gard Lakot Rodrig -->
+        <div class="rounded-2xl p-4 bg-gradient-to-br from-rose-600/25 via-rose-950/30 to-slate-900/40 border-2 border-rose-500/50">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-mono font-extrabold text-rose-400 tracking-wider uppercase">SOS EK SEKIRITE LAMER</span>
+              <h2 class="text-lg sm:text-xl font-extrabold mt-0.5">VHF Kanal 16 (156.800 MHz)</h2>
+            </div>
+            <button onclick="playVhfAttentionTone()" class="min-h-[44px] px-3.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-rose-600/30 active:scale-95 transition">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+              Teste son
+            </button>
+          </div>
+          <p class="text-sm opacity-90 mt-2 leading-relaxed">
+            Gard Lakot (NCG) Rodrig ekout Kanal 16 touletan. Dir nom bato, pozision GPS, komie dimounn abor ek ki problem ena.
+          </p>
+          <div class="grid grid-cols-2 gap-2.5 mt-3">
+            <button onclick="copyText('NCG Rodrigues Emergency: +230 831 1536 / VHF Ch 16', 'Kontak irzans NCG Rodrig kopie')" class="min-h-[46px] rounded-xl bg-rose-500/20 border border-rose-400/40 px-3 py-2 text-left active:scale-95 transition">
+              <div class="text-[11px] font-mono text-rose-300">TELEFON NCG RODRIG</div>
+              <div class="text-sm font-extrabold font-mono">+230 831 1536</div>
+            </button>
+            <button onclick="copyText('MRCC Mauritius Rescue: +230 212 2747 / VHF Ch 16', 'Kontak sekour MRCC kopie')" class="min-h-[46px] rounded-xl bg-rose-500/20 border border-rose-400/40 px-3 py-2 text-left active:scale-95 transition">
+              <div class="text-[11px] font-mono text-rose-300">SEKOUR MRCC</div>
+              <div class="text-sm font-extrabold font-mono">+230 212 2747</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bann frekans VHF marin dan Rodrig -->
+        <div class="marine-card rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-base">Bann kanal VHF marin dan Rodrig</h3>
+              <p class="text-xs opacity-70">Tap lor enn kanal pou kopie so frekans</p>
+            </div>
+            <span class="text-xs font-mono text-cyan-400">ITU REZION 1</span>
+          </div>
+          <div id="vhfChannelList" class="space-y-2.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Lalis verifikasion sekirite avan sorti bato -->
+        <div class="marine-card rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-base">Verifikasion avan sorti dan lagon ek pasaz</h3>
+              <p class="text-xs opacity-70">Tap sak pwin avan travers resif deor</p>
+            </div>
+            <span id="checklistProgress" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-500/15 text-cyan-400">0/5 PRET</span>
+          </div>
+          <div id="safetyChecklist" class="space-y-2">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FIXED BOTTOM THUMB NAVIGATION BAR (Visible on Mobile & Tablet < 900px) -->
+  <nav aria-label="Navigasion prinsipal" class="min-[900px]:hidden fixed bottom-0 inset-x-0 z-40 bg-[#071222]/95 light-glare:bg-white/95 backdrop-blur-lg border-t border-sky-500/25 mobile-nav-bar">
+    <div class="grid grid-cols-4 gap-1 px-2 pt-1.5 max-w-lg mx-auto">
+      
+      <button onclick="switchMobileTab('overview')" id="navBtn-overview" class="nav-tab-btn min-h-[54px] rounded-xl flex flex-col items-center justify-center gap-1 text-cyan-400 bg-cyan-500/15 font-bold transition">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+        <span class="text-[11px] leading-none">Rezime</span>
+      </button>
+
+      <button onclick="switchMobileTab('map')" id="navBtn-map" class="nav-tab-btn min-h-[54px] rounded-xl flex flex-col items-center justify-center gap-1 opacity-70 hover:opacity-100 font-semibold transition">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+        <span class="text-[11px] leading-none">Radar Pwason</span>
+      </button>
+
+      <button onclick="switchMobileTab('tides')" id="navBtn-tides" class="nav-tab-btn min-h-[54px] rounded-xl flex flex-col items-center justify-center gap-1 opacity-70 hover:opacity-100 font-semibold transition">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 18c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 6c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/>
+        </svg>
+        <span class="text-[11px] leading-none">Lamare ek Vag</span>
+      </button>
+
+      <button onclick="switchMobileTab('vhf')" id="navBtn-vhf" class="nav-tab-btn min-h-[54px] rounded-xl flex flex-col items-center justify-center gap-1 opacity-70 hover:opacity-100 font-semibold transition">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="text-[11px] leading-none">VHF ek Sekirite</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <script>
+    // =========================================================================
+    // 1. RODRIG ISLAND MARINE SECTORS, HOTSPOTS & VHF DATA
+    // =========================================================================
+    const SECTORS = {
+      port_mathurin: {
+        name: "Port Mathurin ek Pasaz Nor",
+        lat: -19.675,
+        lon: 63.422,
+        lagoonFactor: 0.32,
+        biteScore: 84,
+        species: "Carangue GT, Thon jaune, Barracuda",
+        passRisk: "MODERE (1.8m)",
+        focusZoom: 1.45,
+        focusLon: 63.422,
+        focusLat: -19.675
+      },
+      grand_bassin: {
+        name: "Passe Grand Bassin ek Rivière Banane",
+        lat: -19.668,
+        lon: 63.472,
+        lagoonFactor: 0.35,
+        biteScore: 92,
+        species: "Gro Carangue GT, Thon dents-de-chien",
+        passRisk: "LAMARE PLENN ON EBB (2.1m)",
+        focusZoom: 1.55,
+        focusLon: 63.472,
+        focusLat: -19.672
+      },
+      mourouk: {
+        name: "Mourouk ek Lagon Sid-Es",
+        lat: -19.765,
+        lon: 63.465,
+        lagoonFactor: 0.28,
+        biteScore: 81,
+        species: "Bonefish, Carangue bleue",
+        passRisk: "CHOPPY (SE TRADES)",
+        focusZoom: 1.5,
+        focusLon: 63.460,
+        focusLat: -19.760
+      },
+      baie_du_nord: {
+        name: "Baie du Nord ek Île aux Cocos",
+        lat: -19.712,
+        lon: 63.315,
+        lagoonFactor: 0.25,
+        biteScore: 79,
+        species: "Capitaine, Vivaneau, Queenfish",
+        passRisk: "PROTEZE DERYER",
+        focusZoom: 1.45,
+        focusLon: 63.330,
+        focusLat: -19.710
+      },
+      hawkins_bank: {
+        name: "Hawkins Bank FAD / boue lapess",
+        lat: -19.480,
+        lon: 63.300,
+        lagoonFactor: 1.0,
+        biteScore: 95,
+        species: "Marlin bleu, Thon jaune, Wahoo",
+        passRisk: "VAG LAMER OUVERT",
+        focusZoom: 0.95,
+        focusLon: 63.350,
+        focusLat: -19.580
+      }
+    };
+
+    const FISH_HOTSPOTS = [
+      {
+        id: "hs-grand-bassin",
+        title: "Desant Passe Grand Bassin",
+        coordsText: "19°40.1'S, 063°28.4'E",
+        lat: -19.668,
+        lon: 63.473,
+        bitePct: 94,
+        type: "prime",
+        species: "GT, Dogtooth, Jobfish ver",
+        depth: "18m – 85m miray resif",
+        tactic: "Poppers lor sirfas / Jig rapid",
+        bestTide: "Kouran sorti (ebb) ouswa koumansman kouran rantre; get ler lamare lokal.",
+        conditions: "Lamer kalm ziska modere; rod kouran regilie kot lantree kanal.",
+        caution: "Kouran kapav vinn for dan pasaz. Pa travers si vag kase lor resif.",
+        desc: "Labout kanal profon kot delo lagon sorti ver enn miray resif 85m. Bon landrwa pou rod gro Carangue kan kouran pe sorti."
+      },
+      {
+        id: "hs-north-wall",
+        title: "Pwin Profon dan Nor",
+        coordsText: "19°38.4'S, 063°24.8'E",
+        lat: -19.640,
+        lon: 63.413,
+        bitePct: 91,
+        type: "prime",
+        species: "Thon dents-de-chien, Wahoo, Sailfish",
+        depth: "45m – 210m bor plato",
+        tactic: "Jig profon / Lapes vivan an troll dousman",
+        bestTide: "Teste otour sanzman lamare, kan kouran koumans bouze.",
+        conditions: "Rod bann frontiere kot fon sanze; swiv sondeur ek kouran.",
+        caution: "Delo profon ek kouran kapav sanz vit; bizin bato ek lekipman adapte.",
+        desc: "Enn gran lapant anba delo, 2.5 mil marin dan nor lantre kanal Port Mathurin. Kouran zwenn isi ek atir bann ti pwason."
+      },
+      {
+        id: "hs-hawkins-fad",
+        title: "FAD Sid Hawkins Bank #2",
+        coordsText: "19°31.2'S, 063°19.5'E",
+        lat: -19.520,
+        lon: 63.325,
+        bitePct: 96,
+        type: "fad",
+        species: "Thon jaune, Marlin bleu, Dorado",
+        depth: "65m plato / bor 1200m",
+        tactic: "Trolling avek leur ek bonit vivan",
+        bestTide: "Boner gramatin ouswa avan aswar; aziste dapre aktivite pwason ki trouve.",
+        conditions: "Rod bann zwarm ti pwason, zwazo pe plonz ek keksoz lor sirfas.",
+        caution: "Long distans offshore. Verifie karbiran, previzion, VHF, GPS ek plan retour.",
+        desc: "Bor montagn anba delo dan nor-wes Rodrig. Landrwa kot Thon jaune 30–60kg ek Marlin bleu pase souvan."
+      },
+      {
+        id: "hs-st-francois",
+        title: "Pasaz Resif St. François",
+        coordsText: "19°42.6'S, 063°30.5'E",
+        lat: -19.710,
+        lon: 63.508,
+        bitePct: 87,
+        type: "prime",
+        species: "Wahoo, Giant Trevally, Bohar Snapper",
+        depth: "14m – 60m pasaz",
+        tactic: "Stickbait anba sirfas / Trolling",
+        bestTide: "Kan kouran pe pase lor bor resif; pa krwar enn ler fix garanti.",
+        conditions: "Get direksion vag, kouran ek rafal avan apros bor resif.",
+        caution: "Resif ek vag kase kapav danzere. Gard distans avek bor resif ek pasaz.",
+        desc: "Dernie kase resif dan les kot vag Losean Indien rantre. Kouran for; fer bien atansion kan lamar pe sorti for."
+      },
+      {
+        id: "hs-mourouk-flats",
+        title: "Platier Mourouk ek Île Hermitage",
+        coordsText: "19°46.1'S, 063°27.2'E",
+        lat: -19.768,
+        lon: 63.453,
+        bitePct: 83,
+        type: "prime",
+        species: "Bonefish, Carangue bleue, Permit",
+        depth: "0.8m – 3.5m disab / lerb torti",
+        tactic: "Lanse leger / leur krab ek krevett",
+        bestTide: "Lamar pe rantre lor platier; get oter delo avan mars ouswa lapes.",
+        conditions: "Delo kler ek ti vag; rod pwason dan kanal delo pli profon.",
+        caution: "Delo bien ba dan serten landrwa; pa mars lor koray ek fer atansion avek ler lamare.",
+        desc: "Gran platier disab dan sid, andan resif. Meyer ler pou lapes kan lamar pe rantre ver bor koray."
+      },
+      {
+        id: "hs-cocos-channel",
+        title: "Kanal Lwès Île aux Cocos",
+        coordsText: "19°42.8'S, 063°18.1'E",
+        lat: -19.713,
+        lon: 63.301,
+        bitePct: 80,
+        type: "prime",
+        species: "Spangled Emperor, Queenfish, Trevally",
+        depth: "4m – 16m pasaz lagon",
+        tactic: "Leur plastik / Jig leger",
+        bestTide: "Teste kan kouran pe rantre/sorti dan kanal, dapre sekirite pasaz.",
+        conditions: "Lagon proteze pa vedir toultan kalm; get divan ek vag lokal.",
+        caution: "Verifie si landrwa-la dan rezerv ouswa enn zone avek restriksion lapes.",
+        desc: "Kanal dan lagon kote lwes pre Île aux Cocos. Li pli proteze kont vag divan Sid-Es."
+      },
+      {
+        id: "hs-east-fad",
+        title: "Pointe Coton FAD / boue lapes #4",
+        coordsText: "19°43.5'S, 063°34.8'E",
+        lat: -19.725,
+        lon: 63.580,
+        bitePct: 89,
+        type: "fad",
+        species: "Dorado (Mahi-Mahi), Wahoo, YFT",
+        depth: "480m delo profon",
+        tactic: "Trolling rapid avek leur",
+        bestTide: "Swiv aktivite zwazo ek ti pwason; adapte vitess avek kondisyon lamer.",
+        conditions: "Delo ouver, vizibilite korek ek divan ki permet navigasion sir.",
+        caution: "Landrwa offshore ek lamer ouver. Pa ale si previzion, vag ouswa karbiran pa bon.",
+        desc: "Plase 4.5 mil marin dan les Pointe Coton. Bon landrwa pou troll boner gramatin kan divan Sid-Es anba 18 ne."
+      }
+    ];
+
+    const VHF_CHANNELS = [
+      { ch: "CH 16", freq: "156.800 MHz", name: "SOS, sekirite ek apel internasional", note: "Ekout obligatwar • NCG Rodrig", priority: "emergency" },
+      { ch: "CH 67", freq: "156.375 MHz", name: "Sekirite ti bato ek previzion letan", note: "Biltin letan marin Moris / Rodrig", priority: "primary" },
+      { ch: "CH 12", freq: "156.600 MHz", name: "Kontrol Por Port Mathurin", note: "Mouvman bato komers ek kargo dan kanal nor", priority: "primary" },
+      { ch: "CH 08", freq: "156.400 MHz", name: "Komunikasion ant bato lapes ek charter", note: "Kanal travay pou bann bato lapes sportif ek lagon Rodrig", priority: "normal" },
+      { ch: "CH 72", freq: "156.625 MHz", name: "Ant bato lwazir ek plonze", note: "Operater plonze ek transport ver bann ti zil", priority: "normal" },
+      { ch: "CH 73", freq: "156.675 MHz", name: "Gardien rezerv marin ek patrol lagon", note: "Rivière Banane ek rezerv marin sid-es", priority: "normal" }
+    ];
+
+    const SEKIRTY_ITEMS = [
+      { id: "chk-vhf", label: "Radio VHF portab ek fixe teste lor Kanal 16 / 67" },
+      { id: "chk-tide", label: "Verifie ler lamar dan pasaz (evit gro vag kan lamar sorti)" },
+      { id: "chk-gps", label: "Pwin GPS offline ek batri sekour sarze" },
+      { id: "chk-fuel", label: "Reg 1/3 karbiran ale, 1/3 retour, 1/3 rezerv respekte" },
+      { id: "chk-pfds", label: "Zilet sovtaz, flare, lank ek 100m lakord verifye" }
+    ];
+
+    // =========================================================================
+    // 2. APPLICATION STATE
+    // =========================================================================
+    let state = {
+      activeTab: 'overview',
+      sectorKey: 'port_mathurin',
+      glareMode: false,
+      isLiveApi: false,
+      isFetchingTelemetry: false,
+      lastTelemetryUpdate: null,
+      selectedSpot: FISH_HOTSPOTS[0],
+      layers: {
+        hotspots: true,
+        reef: true,
+        hazards: true,
+        currents: true
+      },
+      // Marine Telemetry values (updated from Open-Meteo or resilient fallback)
+      marine: {
+        waveHeight: 1.8,
+        wavePeriod: 11,
+        waveDir: 115,
+        windSpeed: 17,
+        windGusts: 23,
+        windDir: 112,
+        sst: 26.4,
+        pressure: 1015,
+        hourly: []
+      },
+      // Map Viewport Pan & Zoom
+      map: {
+        zoom: 1.15,
+        centerLon: 63.415,
+        centerLat: -19.705,
+        isDragging: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        dragStartLon: 63.415,
+        dragStartLat: -19.705,
+        hitTargets: []
+      },
+      // Tide Scrubbing
+      tideScrubHour: null,
+      checklist: {}
+    };
+
+    // =========================================================================
+    // 3. CLOCK, THEME & NAVIGATION
+    // =========================================================================
+    function updateMutClock() {
+      // Mauritius / Rodrigues Standard Time is strictly UTC+4
+      const now = new Date();
+      const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const mutDate = new Date(utcMs + (4 * 3600000));
+      const hh = String(mutDate.getHours()).padStart(2, '0');
+      const mm = String(mutDate.getMinutes()).padStart(2, '0');
+      const ss = String(mutDate.getSeconds()).padStart(2, '0');
+      const clockEl = document.getElementById('mutClock');
+      if (clockEl) clockEl.textContent = `${hh}:${mm}:${ss} MUT`;
+    }
+
+    function toggleGlareMode() {
+      state.glareMode = !state.glareMode;
+      const htmlEl = document.documentElement;
+      const sunIcon = document.getElementById('themeIconSun');
+      const label = document.getElementById('themeLabel');
+
+      if (state.glareMode) {
+        htmlEl.classList.remove('dark');
+        htmlEl.classList.add('light-glare');
+        if (label) label.textContent = 'Nwit';
+        sunIcon.innerHTML = `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+        showToast('Mòd lalimier aktive pou gete pli bien anba soley');
+      } else {
+        htmlEl.classList.remove('light-glare');
+        htmlEl.classList.add('dark');
+        if (label) label.textContent = 'Lalimier';
+        sunIcon.innerHTML = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`;
+        showToast('Mòd vizion lannwit aktive');
+      }
+      drawTideChart();
+    }
+
+    function switchMobileTab(tabId) {
+      state.activeTab = tabId;
+      const panels = ['overview', 'map', 'tides', 'vhf'];
+
+      panels.forEach(p => {
+        const panelEl = document.getElementById(`tab-${p}`);
+        const navBtn = document.getElementById(`navBtn-${p}`);
+        if (panelEl) {
+          if (p === tabId) {
+            panelEl.classList.remove('hidden');
+          } else {
+            panelEl.classList.add('hidden');
+          }
+        }
+        if (navBtn) {
+          if (p === tabId) {
+            navBtn.classList.add('text-cyan-400', 'bg-cyan-500/15', 'font-bold');
+            navBtn.classList.remove('opacity-70', 'font-semibold');
+          } else {
+            navBtn.classList.remove('text-cyan-400', 'bg-cyan-500/15', 'font-bold');
+            navBtn.classList.add('opacity-70', 'font-semibold');
+          }
+        }
+      });
+
+      // Redraw canvases immediately when their tab becomes visible so dimensions are 100% accurate
+      if (tabId === 'map') {
+        requestAnimationFrame(() => {
+          resizeMapCanvas();
+          drawRodriguesChart();
+        });
+      } else if (tabId === 'tides') {
+        requestAnimationFrame(() => {
+          resizeTideCanvas();
+          drawTideChart();
+        });
+      }
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const banner = document.getElementById('toastBanner');
+      const msgEl = document.getElementById('toastMessage');
+      if (!banner || !msgEl) return;
+      msgEl.textContent = msg;
+      banner.classList.remove('opacity-0', '-translate-y-2');
+      banner.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        banner.classList.add('opacity-0', '-translate-y-2');
+        banner.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    }
+
+    function copyText(text, toastMsg) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast(toastMsg || 'Kopie dan clipboard');
+      } catch (e) {
+        showToast('Pa kapav kopie lor sa browser-la');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // =========================================================================
+    // 4. LIVE OPEN-METEO MARINE & WEATHER FETCH (WITH OFFLINE FALLBACK)
+    // =========================================================================
+    function degToCompass(deg) {
+      const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      return dirs[Math.round(deg / 22.5) % 16];
+    }
+
+    function windToBeaufort(kts) {
+      if (kts < 1) return "Beaufort 0 • Kalme";
+      if (kts <= 3) return "Beaufort 1 • Ti souf divan";
+      if (kts <= 6) return "Beaufort 2 • Divan leze";
+      if (kts <= 10) return "Beaufort 3 • Ti divan";
+      if (kts <= 16) return "Beaufort 4 • Divan modere";
+      if (kts <= 21) return "Beaufort 5 • Divan ase for";
+      if (kts <= 27) return "Beaufort 6 • Divan for";
+      if (kts <= 33) return "Beaufort 7 • Preske tanpet";
+      return "Beaufort 8+ • Alert tanpet";
+    }
+
+    function generateFallbackHourly() {
+      const hours = [];
+      const now = new Date();
+      const baseHour = now.getHours();
+      for (let i = 0; i < 24; i++) {
+        const h = (baseHour + i) % 24;
+        const wave = +(1.6 + Math.sin(i * 0.35) * 0.35).toFixed(1);
+        const wind = Math.round(15 + Math.cos(i * 0.3) * 3.5);
+        hours.push({
+          timeLabel: `${String(h).padStart(2, '0')}:00`,
+          waveHeight: wave,
+          windKnots: wind,
+          windDir: 112 + Math.round(Math.sin(i * 0.2) * 8)
+        });
+      }
+      return hours;
+    }
+
+    async function fetchLiveRodriguesTelemetry() {
+      // Prevent overlapping requests when the 20-second auto-refresh is active.
+      if (state.isFetchingTelemetry) return;
+      state.isFetchingTelemetry = true;
+      const sector = SECTORS[state.sectorKey] || SECTORS.port_mathurin;
+      const refreshIcon = document.getElementById('refreshIcon');
+      if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+      const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${sector.lat}&longitude=${sector.lon}&current=wave_height,wave_direction,wave_period,sea_surface_temperature&hourly=wave_height&timezone=Indian%2FMauritius&forecast_days=2`;
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${sector.lat}&longitude=${sector.lon}&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kn&timezone=Indian%2FMauritius&forecast_days=2`;
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5500);
+
+        const [marineRes, weatherRes] = await Promise.all([
+          fetch(marineUrl, { signal: controller.signal }),
+          fetch(weatherUrl, { signal: controller.signal })
+        ]);
+        clearTimeout(timeoutId);
+
+        if (!marineRes.ok || !weatherRes.ok) throw new Error('API non-200');
+
+        const marineData = await marineRes.json();
+        const weatherData = await weatherRes.json();
+
+        const mc = marineData.current || {};
+        const wc = weatherData.current || {};
+
+        state.marine.waveHeight = Number((mc.wave_height ?? 1.8).toFixed(1));
+        state.marine.wavePeriod = Math.round(mc.wave_period ?? 11);
+        state.marine.waveDir = Math.round(mc.wave_direction ?? 115);
+        state.marine.sst = Number((mc.sea_surface_temperature ?? 26.4).toFixed(1));
+
+        state.marine.windSpeed = Math.round(wc.wind_speed_10m ?? 17);
+        state.marine.windGusts = Math.round(wc.wind_gusts_10m ?? 23);
+        state.marine.windDir = Math.round(wc.wind_direction_10m ?? 112);
+        state.marine.pressure = Math.round(wc.surface_pressure ?? 1015);
+
+        // Build next 18 hours strip
+        const nowHourIdx = new Date().getHours();
+        const hourlyList = [];
+        for (let i = 0; i < 18; i++) {
+          const idx = nowHourIdx + i;
+          const tStr = (weatherData.hourly?.time?.[idx] || '').slice(11, 16) || `${String((nowHourIdx + i) % 24).padStart(2, '0')}:00`;
+          const wh = Number((marineData.hourly?.wave_height?.[idx] ?? state.marine.waveHeight).toFixed(1));
+          const ws = Math.round(weatherData.hourly?.wind_speed_10m?.[idx] ?? state.marine.windSpeed);
+          const wd = Math.round(weatherData.hourly?.wind_direction_10m?.[idx] ?? state.marine.windDir);
+          hourlyList.push({ timeLabel: tStr, waveHeight: wh, windKnots: ws, windDir: wd });
+        }
+        state.marine.hourly = hourlyList.length ? hourlyList : generateFallbackHourly();
+        state.isLiveApi = true;
+      } catch (err) {
+        // Resilient marine fallback when offshore with weak signal
+        state.isLiveApi = false;
+        if (!state.marine.hourly.length) {
+          state.marine.hourly = generateFallbackHourly();
+        }
+      } finally {
+        state.lastTelemetryUpdate = new Date();
+        state.isFetchingTelemetry = false;
+        if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+        updateDashboardUI();
+        updateRefreshStatus();
+      }
+    }
+
+    function updateRefreshStatus() {
+      const badge = document.getElementById('dataSourceBadge');
+      if (!badge) return;
+      const time = state.lastTelemetryUpdate
+        ? state.lastTelemetryUpdate.toLocaleTimeString('en-GB', { timeZone: 'Indian/Mauritius', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        : '--:--:--';
+      badge.title = `Dernie verifikasion: ${time} MUT • Auto-refresh toule 20 segonn`;
+      badge.setAttribute('aria-label', `${state.isLiveApi ? 'Done live' : 'Done anrezistre'}; dernie refresh ${time} MUT; refresh otomatik toule 20 segonn`);
+    }
+
+    function refreshTelemetry() {
+      fetchLiveRodriguesTelemetry();
+      showToast('Pe met azour bann done lamer Rodrig...');
+    }
+
+    function changeSector(newSectorKey) {
+      state.sectorKey = newSectorKey;
+      const sector = SECTORS[newSectorKey];
+      if (sector) {
+        state.map.zoom = sector.focusZoom;
+        state.map.centerLon = sector.focusLon;
+        state.map.centerLat = sector.focusLat;
+      }
+      fetchLiveRodriguesTelemetry();
+      drawRodriguesChart();
+      showToast(`Landrwa: ${sector.name}`);
+    }
+
+    // =========================================================================
+    // 5. UPDATE UI METRICS, ALERTS, HOURLY & SOLUNAR
+    // =========================================================================
+    function updateDashboardUI() {
+      const sector = SECTORS[state.sectorKey];
+      const m = state.marine;
+
+      // Live / Cached Badge
+      const badge = document.getElementById('dataSourceBadge');
+      if (badge) {
+        if (state.isLiveApi) {
+          badge.className = 'inline-flex items-center gap-1 text-emerald-400 font-semibold';
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>DONE AN TAN REEL`;
+        } else {
+          badge.className = 'inline-flex items-center gap-1 text-amber-400 font-semibold';
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>DONE ANREZISTRE`;
+        }
+      }
+
+      // Compute Sea State Severity (SEKIR / PRAN PREKOSION / MOVE)
+      let severity = 'SEKIR';
+      if (m.waveHeight >= 2.5 || m.windSpeed >= 22) {
+        severity = 'MOVE';
+      } else if (m.waveHeight >= 1.6 || m.windSpeed >= 15) {
+        severity = 'PRAN PREKOSION';
+      }
+
+      const statusPill = document.getElementById('seaStatusPill');
+      const statusText = document.getElementById('seaStatusText');
+      const alertCard = document.getElementById('seaAlertCard');
+      const alertIconBox = document.getElementById('alertIconBox');
+      const alertSeverityBadge = document.getElementById('alertSeverityBadge');
+      const alertHeadline = document.getElementById('alertHeadline');
+      const alertDetails = document.getElementById('alertDetails');
+
+      statusText.textContent = severity === 'SAFE' ? 'SEKIR' : severity === 'ROUGH' ? 'MOVE' : 'PRAN PREKOSION';
+
+      if (severity === 'MOVE') {
+        statusPill.className = 'min-h-[44px] px-3 rounded-xl font-bold text-xs sm:text-sm tracking-wide flex items-center gap-1.5 bg-rose-500/20 text-rose-400 border border-rose-500/50 active:scale-95 transition';
+        alertCard.className = 'rounded-2xl p-4 border-2 border-rose-500/60 bg-gradient-to-br from-rose-500/20 via-rose-950/25 to-transparent shadow-lg';
+        alertIconBox.className = 'w-10 h-10 rounded-xl bg-rose-500/25 text-rose-400 flex items-center justify-center shrink-0';
+        alertSeverityBadge.className = 'text-[11px] font-mono font-bold uppercase tracking-wider text-rose-400';
+        alertSeverityBadge.textContent = 'ALERT POU TI BATO EK PASAZ';
+        alertHeadline.textContent = `Gro vag (${m.waveHeight}m) & For ${degToCompass(m.windDir)} divan`;
+        alertDetails.textContent = `Vag ki kase danzere dan Passe Grand Bassin, Passe St. François ek Pasaz Nor. Pa sorti par resif kan lamare pe desann; res dan lagon proteze.`;
+      } else if (severity === 'PRAN PREKOSION') {
+        statusPill.className = 'min-h-[44px] px-3 rounded-xl font-bold text-xs sm:text-sm tracking-wide flex items-center gap-1.5 bg-amber-500/15 text-amber-400 border border-amber-500/40 active:scale-95 transition';
+        alertCard.className = 'rounded-2xl p-4 border-2 border-amber-500/50 bg-gradient-to-br from-amber-500/15 via-orange-950/20 to-transparent shadow-lg';
+        alertIconBox.className = 'w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0';
+        alertSeverityBadge.className = 'text-[11px] font-mono font-bold uppercase tracking-wider text-amber-400';
+        alertSeverityBadge.textContent = 'ALERT PASAZ EK RESIF';
+        alertHeadline.textContent = `Modere ${degToCompass(m.windDir)} vag alize dan pasaz resif`;
+        alertDetails.textContent = `Lamare pe sorti kont ${m.windSpeed} kt ${degToCompass(m.windDir)} winds fer bann vag vinn pli drwat ek for dan Passe Grand Bassin & St. François. Fer atansion avek bann koray ki pre sirfas kan delo ba.`;
+      } else {
+        statusPill.className = 'min-h-[44px] px-3 rounded-xl font-bold text-xs sm:text-sm tracking-wide flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 active:scale-95 transition';
+        alertCard.className = 'rounded-2xl p-4 border-2 border-emerald-500/45 bg-gradient-to-br from-emerald-500/15 via-teal-950/20 to-transparent shadow-lg';
+        alertIconBox.className = 'w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+        alertSeverityBadge.className = 'text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400';
+        alertSeverityBadge.textContent = 'BON KONDISION LAMER';
+        alertHeadline.textContent = `Pasaz resif prop ek lagon kalm`;
+        alertDetails.textContent = `Divan feb ziska modere ${m.windSpeed} kt avek ${m.waveHeight}m vag deor. Vizibilite kapav bon lor koray; me al Hawkins Bank ek FAD deor zis si kondisyon ek sekirite permet.`;
+      }
+
+      const lagoonWave = Math.max(0.2, +(m.waveHeight * sector.lagoonFactor).toFixed(1));
+      document.getElementById('alertPassRisk').textContent = `VAG DEOR: ${m.waveHeight}m (${m.wavePeriod}s)`;
+      document.getElementById('alertLagoonChop').textContent = `VAG DAN LAGON: apepre ${lagoonWave}m`;
+
+      // Update 2x2 Summary Cards
+      document.getElementById('metricWaveHeight').textContent = m.waveHeight.toFixed(1);
+      document.getElementById('metricSwellPeriod').textContent = `${m.wavePeriod}s • ${degToCompass(m.waveDir)} (${m.waveDir}°)`;
+      document.getElementById('metricLagoonWave').textContent = `Vag dan lagon deryer resif: apepre ${lagoonWave}m`;
+
+      document.getElementById('metricWindSpeed').textContent = m.windSpeed;
+      document.getElementById('metricWindDir').textContent = `${degToCompass(m.windDir)} ${m.windDir}° • gro rafal ${m.windGusts}kt`;
+      document.getElementById('metricBeaufort').textContent = windToBeaufort(m.windSpeed);
+
+      document.getElementById('metricBiteScore').textContent = sector.biteScore;
+      document.getElementById('metricTargetSpecies').textContent = sector.species;
+      document.getElementById('metricTANPERATIR SIRFAS').textContent = `Tanperatir sirfas delo ${m.sst}°C • ${m.pressure} hPa`;
+
+      document.getElementById('stripTANPERATIR SIRFAS').textContent = `${m.sst}°C`;
+      document.getElementById('stripPresion atmosferik').textContent = `${m.pressure} hPa`;
+
+      renderHourlyForecast();
+    }
+
+    function renderHourlyForecast() {
+      const container = document.getElementById('hourlyForecastStrip');
+      if (!container) return;
+      container.innerHTML = state.marine.hourly.map((h, i) => {
+        const isRough = h.waveHeight >= 2.2 || h.windKnots >= 21;
+        const accentClass = isRough ? 'text-amber-400' : 'text-cyan-400';
+        return `
+          <div class="min-w-[82px] rounded-xl p-2.5 bg-slate-900/50 light-glare:bg-slate-100 border border-sky-500/15 flex flex-col items-center text-center shrink-0">
+            <span class="text-xs font-mono font-bold opacity-80">${i === 0 ? 'LALER' : h.timeLabel}</span>
+            <span class="text-base font-extrabold font-mono tabular-nums mt-1.5 ${accentClass}">${h.waveHeight}m</span>
+            <span class="text-[11px] font-mono opacity-75 mt-1">${h.windKnots} kt</span>
+            <span class="text-[10px] font-mono opacity-60">${degToCompass(h.windDir)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 6. HARMONIC LAMARS FOR PORT MATHURIN (INTERAKTIF SCRUBBABLE CANVAS)
+    // =========================================================================
+    // Port Mathurin semidiurnal harmonic approximation anchored to current day
+    function getPortMathurinTideHeight(hourFloat) {
+      // Semidiurnal M2 + S2 constituents typical for Rodrigues (range ~0.35m to 1.52m)
+      const now = new Date();
+      const dayPhase = (now.getDate() % 14) * 0.44;
+      const tide = 0.92
+        + 0.46 * Math.cos(((hourFloat - 1.6 - dayPhase) / 12.42) * 2 * Math.PI)
+        + 0.12 * Math.cos(((hourFloat - 3.1) / 12.0) * 2 * Math.PI);
+      return Number(tide.toFixed(2));
+    }
+
+    function computeDailyTideExtremes() {
+      const extremes = [];
+      let prev = getPortMathurinTideHeight(-0.1);
+      let curr = getPortMathurinTideHeight(0);
+      for (let m = 5; m <= 24 * 60; m += 5) {
+        const h = m / 60;
+        const next = getPortMathurinTideHeight(h);
+        if ((curr > prev && curr >= next) || (curr < prev && curr <= next)) {
+          const isHigh = curr > prev;
+          const hh = String(Math.floor(h) % 24).padStart(2, '0');
+          const mm = String(Math.round((h % 1) * 60) % 60).padStart(2, '0');
+          extremes.push({
+            type: isHigh ? 'LAMARE PLENN' : 'LAMARE BAS',
+            hourFloat: h,
+            timeStr: `${hh}:${mm}`,
+            height: curr.toFixed(2)
+          });
+        }
+        prev = curr;
+        curr = next;
+      }
+      return extremes.slice(0, 4);
+    }
+
+    let solunarWindowsCache = [];
+
+    function initTidesAndSolunar() {
+      const extremes = computeDailyTideExtremes();
+      const now = new Date();
+      const nowHour = now.getHours() + now.getMinutes() / 60;
+
+      // Update Rezime Next Tide Card
+      const nextTide = extremes.find(e => e.hourFloat > nowHour) || extremes[0];
+      const currentH = getPortMathurinTideHeight(nowHour);
+      const nextH = getPortMathurinTideHeight(nowHour + 0.25);
+      const isRising = nextH >= currentH;
+
+      if (nextTide) {
+        document.getElementById('metricNextTideTime').textContent = nextTide.timeStr;
+        const delta = (Number(nextTide.height) - currentH).toFixed(2);
+        const sign = delta >= 0 ? '+' : '';
+        document.getElementById('metricNextTideHeight').textContent = `${nextTide.type} • ${nextTide.height}m (${sign}${delta}m)`;
+        const badge = document.getElementById('metricTideStateBadge');
+        badge.textContent = isRising ? 'LAMARE LAMARE PE MONTE' : 'LAMARE LAMARE PE DESANN';
+        badge.className = isRising
+          ? 'px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 font-bold'
+          : 'px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 font-bold';
+      }
+
+      // Render 4 Tide Extreme Cards
+      const grid = document.getElementById('tideExtremesGrid');
+      if (grid) {
+        grid.innerHTML = extremes.map(ex => {
+          const isHigh = ex.type === 'LAMARE PLENN';
+          return `
+            <div class="rounded-xl p-3 bg-slate-900/50 light-glare:bg-slate-100 border border-sky-500/15 flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-mono font-bold ${isHigh ? 'text-cyan-400' : 'text-amber-400'}">${ex.type} LAMAR</span>
+                <div class="text-lg font-extrabold font-mono tabular-nums">${ex.timeStr}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-base font-bold font-mono tabular-nums">${ex.height}m</div>
+                <div class="text-[10px] opacity-65">Nivo referans lor kart</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Bann fenetr ler pwason manze
+      const solunarGrid = document.getElementById('solunarWindowsGrid');
+      if (solunarGrid) {
+        const windows = [
+          { kind: "LAPES BONER GRAMATIN", start: "06:15", end: "08:25", time: "06:15 – 08:25 MUT", rating: "94% • ESTIMASION", note: "Bon ler pou teste kot pasaz ek bor resif kan kouran pe bouze." },
+          { kind: "LAPES AVAN NUIT", start: "18:40", end: "20:50", time: "18:40 – 20:50 MUT", rating: "91% • ESTIMASION", note: "Teste bor resif ek FAD avan soley kouse; get sekirite avan sorti." },
+          { kind: "TI FENETR LAPES #1", start: "12:10", end: "13:15", time: "12:10 – 13:15 MUT", rating: "74% • ESTIMASION", note: "Kapav ena aktivite pwason lor sirfas dan lamer ouver." },
+          { kind: "TI FENETR LAPES #2", start: "00:30", end: "01:35", time: "00:30 – 01:35 MUT", rating: "71% • ESTIMASION", note: "Lapes aswar pou bann pwason resif; sorti zis avek lekipman ek sekirite adapte." }
+        ];
+        solunarWindowsCache = windows;
+        solunarGrid.innerHTML = windows.map(w => `
+          <div class="rounded-xl p-3 bg-slate-900/50 light-glare:bg-slate-100 border border-sky-500/15">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="font-bold text-amber-400">${w.kind}</span>
+              <span class="text-emerald-400 font-bold">${w.rating}</span>
+            </div>
+            <div class="text-base font-extrabold font-mono tabular-nums mt-1">${w.time}</div>
+            <p class="text-xs opacity-75 mt-1">${w.note}</p>
+          </div>
+        `).join('');
+        updateBestFishingWindow(windows);
+      }
+
+      setupTideCanvasScrubbing();
+      resizeTideCanvas();
+      drawTideChart();
+    }
+
+    function updateBestFishingWindow(windows = solunarWindowsCache) {
+      const now = new Date();
+      const nowMins = now.getHours() * 60 + now.getMinutes();
+      const parsed = windows.map(w => {
+        const [sh, sm] = w.start.split(':').map(Number);
+        const [eh, em] = w.end.split(':').map(Number);
+        return { ...w, startMins: sh * 60 + sm, endMins: eh * 60 + em };
+      });
+      const active = parsed.find(w => nowMins >= w.startMins && nowMins <= w.endMins);
+      const next = active || parsed.filter(w => w.startMins > nowMins).sort((a,b) => a.startMins-b.startMins)[0] || parsed.slice().sort((a,b) => a.startMins-b.startMins)[0];
+      const timeEl = document.getElementById('bestFishingWindow');
+      const adviceEl = document.getElementById('bestFishingAdvice');
+      const statusEl = document.getElementById('bestFishingStatus');
+      if (!next || !timeEl || !adviceEl || !statusEl) return;
+      timeEl.textContent = next.time;
+      adviceEl.textContent = active ? 'Sa fenetr-la pe deroule aster. Get kouran, divan ek vag avan ou al lapes.' : `Prosin bon fenetr pou lapes: ${next.kind.toLowerCase()}. Prepar ou lekipman davans.`;
+      statusEl.textContent = active ? 'BON LER ASTER' : 'PROSIN FENETR';
+      statusEl.className = active ? 'text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/25 text-emerald-200' : 'text-xs font-bold px-3 py-2 rounded-xl bg-cyan-500/20 text-cyan-200';
+    }
+
+    function resizeTideCanvas() {
+      const canvas = document.getElementById('tideChartCanvas');
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+    }
+
+    function drawTideChart() {
+      const canvas = document.getElementById('tideChartCanvas');
+      if (!canvas || canvas.width === 0) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, w, h);
+
+      const padLeft = 36;
+      const padRight = 14;
+      const padTop = 20;
+      const padBottom = 26;
+      const plotW = w - padLeft - padRight;
+      const plotH = h - padTop - padBottom;
+
+      // Grid lines (0.0m, 0.5m, 1.0m, 1.5m)
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 10px "JetBrains Mono", monospace';
+
+      [0.2, 0.6, 1.0, 1.4].forEach(val => {
+        const y = padTop + plotH - ((val - 0.1) / 1.55) * plotH;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(w - padRight, y);
+        ctx.stroke();
+        ctx.fillText(`${val.toFixed(1)}m`, 4, y + 3);
+      });
+
+      // X-axis hour ticks
+      [0, 6, 12, 18, 24].forEach(hr => {
+        const x = padLeft + (hr / 24) * plotW;
+        ctx.fillText(`${String(hr).padStart(2, '0')}h`, x - 10, h - 8);
+      });
+
+      // Tide Curve Path
+      const grad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
+      grad.addColorStop(0, 'rgba(0, 229, 255, 0.35)');
+      grad.addColorStop(1, 'rgba(0, 229, 255, 0.02)');
+
+      ctx.beginPath();
+      for (let i = 0; i <= 96; i++) {
+        const hr = (i / 96) * 24;
+        const val = getPortMathurinTideHeight(hr);
+        const x = padLeft + (hr / 24) * plotW;
+        const y = padTop + plotH - ((val - 0.1) / 1.55) * plotH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#00e5ff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Fill under curve
+      ctx.lineTo(padLeft + plotW, padTop + plotH);
+      ctx.lineTo(padLeft, padTop + plotH);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Active Scrub / Current Time Marker
+      const now = new Date();
+      const nowHr = now.getHours() + now.getMinutes() / 60;
+      const activeHr = state.tideScrubHour !== null ? state.tideScrubHour : nowHr;
+      const activeVal = getPortMathurinTideHeight(activeHr);
+      const nextVal = getPortMathurinTideHeight(activeHr + 0.2);
+      const flowKt = ((nextVal - activeVal) * 6.5).toFixed(1);
+
+      const markerX = padLeft + (activeHr / 24) * plotW;
+      const markerY = padTop + plotH - ((activeVal - 0.1) / 1.55) * plotH;
+
+      // Vertical scrub line
+      ctx.beginPath();
+      ctx.moveTo(markerX, padTop);
+      ctx.lineTo(markerX, padTop + plotH);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Marker circle
+      ctx.beginPath();
+      ctx.arc(markerX, markerY, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#f59e0b';
+      ctx.fill();
+      ctx.strokeStyle = '#040b14';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Update scrub readout text
+      const hh = String(Math.floor(activeHr) % 24).padStart(2, '0');
+      const mm = String(Math.floor((activeHr % 1) * 60)).padStart(2, '0');
+      const labelPrefix = state.tideScrubHour !== null ? `${hh}:${mm} MUT` : `LALER (${hh}:${mm})`;
+      document.getElementById('scrubTimeDisplay').textContent = `${labelPrefix} • ${activeVal.toFixed(2)}m`;
+      document.getElementById('scrubFlowDisplay').textContent =
+        flowKt >= 0 ? `Kouran pe rantre +${flowKt} kt (anndan)` : `Kouran lamare pe sorti ${flowKt} kt (deor)`;
+
+      ctx.restore();
+    }
+
+    function setupTideCanvasScrubbing() {
+      const canvas = document.getElementById('tideChartCanvas');
+      if (!canvas) return;
+
+      const handleScrub = (clientX) => {
+        const rect = canvas.getBoundingClientRect();
+        const padLeft = 36;
+        const padRight = 14;
+        const plotW = rect.width - padLeft - padRight;
+        const relX = Math.max(0, Math.min(plotW, clientX - rect.left - padLeft));
+        state.tideScrubHour = (relX / plotW) * 24;
+        drawTideChart();
+      };
+
+      canvas.addEventListener('pointerdown', (e) => {
+        canvas.setPointerCapture(e.pointerId);
+        handleScrub(e.clientX);
+      });
+      canvas.addEventListener('pointermove', (e) => {
+        if (e.buttons > 0 || e.pressure > 0) handleScrub(e.clientX);
+      });
+      canvas.addEventListener('pointerup', () => {
+        // Keep selected scrub position visible for easy reading
+      });
+    }
+
+    // =========================================================================
+    // 7. RODRIG ISLAND TACTICAL CHART & FISH RADAR (CANVAS + TOUCH PAN/ZOOM)
+    // =========================================================================
+    // Accurate geographic polygon coordinates (Lon, Lat) for Rodrigues Island & Barrier Reef
+    const RODRIG_MAINLAND = [
+      [63.421, -19.679], [63.448, -19.675], [63.475, -19.680], [63.495, -19.696],
+      [63.504, -19.714], [63.496, -19.736], [63.478, -19.754], [63.455, -19.766],
+      [63.428, -19.772], [63.398, -19.768], [63.370, -19.756], [63.346, -19.738],
+      [63.338, -19.718], [63.352, -19.700], [63.378, -19.690], [63.402, -19.683]
+    ];
+
+    const BARRIER_REEF_RING = [
+      [63.420, -19.662], [63.456, -19.658], [63.492, -19.668], [63.516, -19.695],
+      [63.518, -19.732], [63.502, -19.768], [63.468, -19.792], [63.425, -19.802],
+      [63.375, -19.798], [63.325, -19.780], [63.288, -19.750], [63.278, -19.715],
+      [63.298, -19.685], [63.342, -19.670], [63.385, -19.664]
+    ];
+
+    const ISLETS = [
+      { name: "Île aux Cocos", lon: 63.302, lat: -19.716, r: 4.5 },
+      { name: "Île aux Sables", lon: 63.314, lat: -19.696, r: 4.0 },
+      { name: "Île Hermitage", lon: 63.442, lat: -19.756, r: 3.5 },
+      { name: "Île Gombrani", lon: 63.435, lat: -19.775, r: 4.0 }
+    ];
+
+    const PASS_HAZARDS = [
+      { name: "Passe Grand Bassin (vag kase kan lamare sorti)", lon: 63.470, lat: -19.666 },
+      { name: "Passe St. François (For Current)", lon: 63.512, lat: -19.712 },
+      { name: "Lantre kanal Pasaz Nor", lon: 63.421, lat: -19.660 }
+    ];
+
+    function geoToScreen(lon, lat, w, h) {
+      const scale = Math.min(w, h) * 2.8 * state.map.zoom;
+      const cosLat = Math.cos((-19.71 * Math.PI) / 180);
+      const x = w / 2 + (lon - state.map.centerLon) * scale * cosLat;
+      const y = h / 2 - (lat - state.map.centerLat) * scale;
+      return { x, y };
+    }
+
+    function screenToGeo(x, y, w, h) {
+      const scale = Math.min(w, h) * 2.8 * state.map.zoom;
+      const cosLat = Math.cos((-19.71 * Math.PI) / 180);
+      const lon = state.map.centerLon + (x - w / 2) / (scale * cosLat);
+      const lat = state.map.centerLat - (y - h / 2) / scale;
+      return { lon, lat };
+    }
+
+    function resizeMapCanvas() {
+      const canvas = document.getElementById('rodriguesMapCanvas');
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+    }
+
+    function drawPolygon(ctx, coords, w, h, close = true) {
+      ctx.beginPath();
+      coords.forEach(([lon, lat], idx) => {
+        const pt = geoToScreen(lon, lat, w, h);
+        if (idx === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      });
+      if (close) ctx.closePath();
+    }
+
+    function drawRodriguesChart() {
+      const canvas = document.getElementById('rodriguesMapCanvas');
+      if (!canvas || canvas.width === 0) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+
+      ctx.save();
+      ctx.scale(dpr, dpr);
+
+      // Deep abyssal ocean gradient background
+      const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 20, w * 0.5, h * 0.5, Math.max(w, h) * 0.75);
+      bgGrad.addColorStop(0, '#09223d');
+      bgGrad.addColorStop(0.6, '#051324');
+      bgGrad.addColorStop(1, '#020811');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Latitude / Longitude Tactical Graticule
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.09)';
+      ctx.lineWidth = 1;
+      for (let lon = 63.15; lon <= 63.70; lon += 0.05) {
+        const p1 = geoToScreen(lon, -19.40, w, h);
+        const p2 = geoToScreen(lon, -19.95, w, h);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+      for (let lat = -19.90; lat <= -19.45; lat += 0.05) {
+        const p1 = geoToScreen(63.15, lat, w, h);
+        const p2 = geoToScreen(63.70, lat, w, h);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+
+      // Bathymetry Contours (200m & 1000m drop-off rings)
+      const islandCenter = geoToScreen(63.41, -19.72, w, h);
+      [1.45, 2.05].forEach((mult, idx) => {
+        ctx.beginPath();
+        ctx.ellipse(islandCenter.x, islandCenter.y, 125 * state.map.zoom * mult, 85 * state.map.zoom * mult, -0.15, 0, Math.PI * 2);
+        ctx.strokeStyle = idx === 0 ? 'rgba(0, 229, 255, 0.22)' : 'rgba(56, 189, 248, 0.12)';
+        ctx.setLineDash([6, 4]);
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // Swell & Trade Wind Drift Vectors Layer
+      if (state.layers.currents) {
+        const rad = ((state.marine.waveDir + 180) * Math.PI) / 180;
+        const dx = Math.sin(rad) * 22;
+        const dy = -Math.cos(rad) * 22;
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
+        ctx.lineWidth = 1.6;
+        for (let gx = 60; gx < w - 40; gx += 95) {
+          for (let gy = 70; gy < h - 50; gy += 95) {
+            ctx.beginPath();
+            ctx.moveTo(gx, gy);
+            ctx.lineTo(gx + dx, gy + dy);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(gx + dx, gy + dy, 2.3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Barrier Reef & Lagoon Turquoise Shelf + Rivière Banane MPA
+      if (state.layers.reef) {
+        drawPolygon(ctx, BARRIER_REEF_RING, w, h, true);
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.16)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.65)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Rivière Banane Marine Protected Area (MPA)
+        const mpaPt = geoToScreen(63.475, -19.673, w, h);
+        ctx.beginPath();
+        ctx.arc(mpaPt.x, mpaPt.y, 16 * state.map.zoom, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.25)';
+        ctx.fill();
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Rodrigues Mainland Island Mass
+      drawPolygon(ctx, RODRIG_MAINLAND, w, h, true);
+      ctx.fillStyle = '#1e293b';
+      ctx.fill();
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Mainland Landmarks
+      const landmarks = [
+        { name: "PORT MATHURIN", lon: 63.421, lat: -19.683 },
+        { name: "MONT LIMON (398m)", lon: 63.418, lat: -19.722 },
+        { name: "MOUROUK", lon: 63.458, lat: -19.762 },
+        { name: "PLAINE CORAIL", lon: 63.362, lat: -19.754 }
+      ];
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '700 10px "Inter", sans-serif';
+      landmarks.forEach(lm => {
+        const pt = geoToScreen(lm.lon, lm.lat, w, h);
+        ctx.fillText(lm.name, pt.x - 28, pt.y);
+      });
+
+      // Outer Lagoon Islets
+      ISLETS.forEach(isl => {
+        const pt = geoToScreen(isl.lon, isl.lat, w, h);
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, isl.r * Math.max(0.85, state.map.zoom * 0.8), 0, Math.PI * 2);
+        ctx.fillStyle = '#334155';
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '600 9px "Inter", sans-serif';
+        ctx.fillText(isl.name, pt.x + 6, pt.y + 3);
+      });
+
+      // Danze dan pasaz Markers Layer
+      if (state.layers.hazards) {
+        PASS_HAZARDS.forEach(hz => {
+          const pt = geoToScreen(hz.lon, hz.lat, w, h);
+          ctx.beginPath();
+          ctx.moveTo(pt.x, pt.y - 8);
+          ctx.lineTo(pt.x + 7, pt.y + 6);
+          ctx.lineTo(pt.x - 7, pt.y + 6);
+          ctx.closePath();
+          ctx.fillStyle = '#f59e0b';
+          ctx.fill();
+          ctx.strokeStyle = '#040b14';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+      }
+
+      // Interactive Fish Hotspots & FADs Layer
+      state.map.hitTargets = [];
+      if (state.layers.hotspots) {
+        FISH_HOTSPOTS.forEach(spot => {
+          const pt = geoToScreen(spot.lon, spot.lat, w, h);
+          const isSelected = state.selectedSpot && state.selectedSpot.id === spot.id;
+          const color = spot.type === 'fad' ? '#00e5ff' : '#10b981';
+
+          // Store generous 28px touch radius for mobile tapping
+          state.map.hitTargets.push({ spot, x: pt.x, y: pt.y, r: 28 });
+
+          // Outer glow ring for selected spot
+          if (isSelected) {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 18, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.22)';
+            ctx.fill();
+            ctx.strokeStyle = '#00e5ff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+
+          // Core marker beacon
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, isSelected ? 9 : 7.5, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+          ctx.strokeStyle = '#040b14';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Spot Label Pill
+          ctx.font = '700 11px "Inter", sans-serif';
+          const label = `${spot.title.split(' ')[0]} ${spot.title.split(' ')[1] || ''} (${spot.bitePct}%)`;
+          const textW = ctx.measureText(label).width;
+          ctx.fillStyle = isSelected ? 'rgba(0, 229, 255, 0.92)' : 'rgba(7, 18, 34, 0.85)';
+          ctx.beginPath();
+          ctx.roundRect(pt.x + 11, pt.y - 10, textW + 10, 20, 6);
+          ctx.fill();
+
+          ctx.fillStyle = isSelected ? '#040b14' : '#f8fafc';
+          ctx.fillText(label, pt.x + 16, pt.y + 4);
+        });
+      }
+
+      ctx.restore();
+    }
+
+    function zoomMap(factor) {
+      state.map.zoom = Math.max(0.65, Math.min(3.5, state.map.zoom * factor));
+      drawRodriguesChart();
+    }
+
+    function resetMapView() {
+      state.map.zoom = 1.15;
+      state.map.centerLon = 63.415;
+      state.map.centerLat = -19.705;
+      drawRodriguesChart();
+      showToast('Kart inn santre lor Rodrig');
+    }
+
+    function toggleMapLayer(layerKey) {
+      state.layers[layerKey] = !state.layers[layerKey];
+      const btn = document.getElementById(`layerBtn-${layerKey}`);
+      if (btn) {
+        if (state.layers[layerKey]) {
+          btn.classList.remove('opacity-45');
+        } else {
+          btn.classList.add('opacity-45');
+        }
+      }
+      drawRodriguesChart();
+    }
+
+    function selectFishSpot(spot, switchToMap = false) {
+      state.selectedSpot = spot;
+      document.getElementById('inspBadge').textContent = `LANDRWA AKTIF • ${spot.bitePct}% LAPES`;
+      document.getElementById('inspCoords').textContent = spot.coordsText;
+      document.getElementById('inspTitle').textContent = spot.title;
+      document.getElementById('inspDesc').textContent = spot.desc;
+      document.getElementById('inspSpecies').textContent = spot.species;
+      document.getElementById('inspDepth').textContent = spot.depth;
+      document.getElementById('inspTactic').textContent = spot.tactic;
+      document.getElementById('inspTide').textContent = spot.bestTide || 'Get ler lamare ek kouran avan ale.';
+      document.getElementById('inspConditions').textContent = spot.conditions || 'Verifye divan, vag ek kouran an tan reel.';
+      document.getElementById('inspCaution').textContent = spot.caution || 'Konfirm sekirite avan sorti.';
+
+      if (switchToMap) {
+        state.map.centerLon = spot.lon;
+        state.map.centerLat = spot.lat;
+        state.map.zoom = 1.5;
+        switchMobileTab('map');
+      }
+      drawRodriguesChart();
+    }
+
+    function copySpotCoordinates() {
+      const s = state.selectedSpot;
+      if (!s) return;
+      copyText(`${s.title} (${s.coordsText} | ${s.lat}, ${s.lon})`, `GPS kopie: ${s.coordsText}`);
+    }
+
+    function setupMapInteractions() {
+      const canvas = document.getElementById('rodriguesMapCanvas');
+      if (!canvas) return;
+
+      let pointerDownPos = { x: 0, y: 0 };
+
+      canvas.addEventListener('pointerdown', (e) => {
+        canvas.setPointerCapture(e.pointerId);
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        pointerDownPos = { x, y };
+        state.map.isDragging = true;
+        state.map.dragStartX = x;
+        state.map.dragStartY = y;
+        state.map.dragStartLon = state.map.centerLon;
+        state.map.dragStartLat = state.map.centerLat;
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Update live cursor GPS readout
+        const geo = screenToGeo(x, y, rect.width, rect.height);
+        const latDeg = Math.abs(Math.trunc(geo.lat));
+        const latMin = ((Math.abs(geo.lat) - latDeg) * 60).toFixed(1);
+        const lonDeg = Math.trunc(geo.lon);
+        const lonMin = ((geo.lon - lonDeg) * 60).toFixed(1);
+        const coordEl = document.getElementById('mapCursorCoords');
+        if (coordEl) coordEl.textContent = `${latDeg}°${latMin}'S  0${lonDeg}°${lonMin}'E`;
+
+        if (!state.map.isDragging) return;
+        const dx = x - state.map.dragStartX;
+        const dy = y - state.map.dragStartY;
+        const scale = Math.min(rect.width, rect.height) * 2.8 * state.map.zoom;
+        const cosLat = Math.cos((-19.71 * Math.PI) / 180);
+
+        state.map.centerLon = state.map.dragStartLon - dx / (scale * cosLat);
+        state.map.centerLat = state.map.dragStartLat + dy / scale;
+        drawRodriguesChart();
+      });
+
+      canvas.addEventListener('pointerup', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const distMoved = Math.hypot(x - pointerDownPos.x, y - pointerDownPos.y);
+        state.map.isDragging = false;
+
+        // If tap (minimal movement), check hit targets
+        if (distMoved < 10) {
+          let closest = null;
+          let minD = Infinity;
+          state.map.hitTargets.forEach(t => {
+            const d = Math.hypot(x - t.x, y - t.y);
+            if (d <= t.r && d < minD) {
+              minD = d;
+              closest = t.spot;
+            }
+          });
+          if (closest) {
+            selectFishSpot(closest, false);
+            showToast(`Landrwa swazir: ${closest.title}`);
+          }
+        }
+      });
+
+      // Mouse wheel zoom support on desktop
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        zoomMap(e.deltaY < 0 ? 1.15 : 0.87);
+      }, { passive: false });
+    }
+
+    // =========================================================================
+    // 8. RENDER QUICK LISTS, VHF DIRECTORY, CHECKLIST & WEB AUDIO TONE
+    // =========================================================================
+    function renderHotspotQuickList() {
+      const container = document.getElementById('hotspotQuickList');
+      if (!container) return;
+      container.innerHTML = FISH_HOTSPOTS.slice(0, 4).map(spot => `
+        <button onclick='selectFishSpot(${JSON.stringify(spot).replace(/'/g, "&#39;")}, true)' class="w-full min-h-[56px] p-3 rounded-xl bg-slate-900/50 light-glare:bg-slate-100 hover:bg-cyan-500/10 border border-sky-500/15 flex items-center justify-between gap-3 text-left active:scale-[0.98] transition">
+          <div class="min-w-0">
+            <div class="font-bold text-sm truncate">${spot.title}</div>
+            <div class="text-xs opacity-75 truncate mt-0.5">${spot.species} • ${spot.depth}</div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 font-mono text-xs font-bold">${spot.bitePct}%</span>
+            <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    function renderVhfDirectory() {
+      const container = document.getElementById('vhfChannelList');
+      if (!container) return;
+      container.innerHTML = VHF_CHANNELS.map(item => {
+        const badgeStyle = item.priority === 'emergency'
+          ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+          : item.priority === 'primary'
+          ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40'
+          : 'bg-slate-800 text-slate-300 border-slate-700';
+
+        return `
+          <button onclick="copyText('${item.ch} (${item.freq}) - ${item.name}', 'Kopie ${item.ch} (${item.freq})')" class="w-full min-h-[60px] p-3 rounded-xl bg-slate-900/50 light-glare:bg-slate-100 border border-sky-500/15 flex items-center justify-between gap-3 text-left active:scale-[0.98] transition">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-lg border text-xs font-mono font-extrabold ${badgeStyle}">${item.ch}</span>
+                <span class="text-xs font-mono opacity-75">${item.freq}</span>
+              </div>
+              <div class="font-bold text-sm mt-1 truncate">${item.name}</div>
+              <div class="text-xs opacity-70 truncate">${item.note}</div>
+            </div>
+            <svg class="w-4 h-4 opacity-60 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderSafetyChecklist() {
+      const container = document.getElementById('safetyChecklist');
+      if (!container) return;
+      container.innerHTML = SEKIRTY_ITEMS.map(item => {
+        const checked = !!state.checklist[item.id];
+        return `
+          <button onclick="toggleSafetyCheck('${item.id}')" class="w-full min-h-[48px] p-3 rounded-xl border transition flex items-center gap-3 text-left active:scale-[0.99] ${
+            checked
+              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 light-glare:text-emerald-800'
+              : 'bg-slate-900/50 light-glare:bg-slate-100 border-sky-500/15'
+          }">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border ${
+              checked ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'border-slate-500'
+            }">
+              ${checked ? '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+            </div>
+            <span class="text-sm font-medium ${checked ? 'line-through opacity-80' : ''}">${item.label}</span>
+          </button>
+        `;
+      }).join('');
+
+      const count = Object.values(state.checklist).filter(Boolean).length;
+      const progEl = document.getElementById('checklistProgress');
+      if (progEl) {
+        progEl.textContent = `${count}/${SEKIRTY_ITEMS.length} PRET`;
+        progEl.className = count === SEKIRTY_ITEMS.length
+          ? 'text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400'
+          : 'text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-500/15 text-cyan-400';
+      }
+    }
+
+    function toggleSafetyCheck(id) {
+      state.checklist[id] = !state.checklist[id];
+      renderSafetyChecklist();
+    }
+
+    // Pure Web Audio API Marine VHF Dual-Tone Safety Check (No external audio files)
+    function playVhfAttentionTone() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+        [1300, 2200, 1300, 2200].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.16);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.16);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx + 1) * 0.16);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.16);
+          osc.stop(now + (idx + 1) * 0.16);
+        });
+        showToast('Playing Marine VHF 1300/2200 Hz Safety Teste son');
+      } catch (e) {
+        showToast('Test son pa disponib lor sa laparey-la');
+      }
+    }
+
+    // =========================================================================
+    // 9. INITIALIZATION & RESPONSIVE RESIZE HANDLERS
+    // =========================================================================
+    window.addEventListener('resize', () => {
+      resizeMapCanvas();
+      drawRodriguesChart();
+      resizeTideCanvas();
+      drawTideChart();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateMutClock();
+      setInterval(updateMutClock, 1000);
+      setInterval(() => updateBestFishingWindow(), 60000);
+
+      renderHotspotQuickList();
+      renderVhfDirectory();
+      renderSafetyChecklist();
+      initTidesAndSolunar();
+      setupMapInteractions();
+
+      // Initial canvas sizing
+      resizeMapCanvas();
+      drawRodriguesChart();
+      resizeTideCanvas();
+      drawTideChart();
+
+      // Fetch live marine telemetry for Port Mathurin / Rodrigues Island
+      fetchLiveRodriguesTelemetry();
+
+      // Re-check marine and weather APIs every 20 seconds. The APIs may
+      // publish forecast values less frequently; polling does not guarantee
+      // that the source observations themselves change every 20 seconds.
+      setInterval(() => {
+        if (!document.hidden) fetchLiveRodriguesTelemetry();
+      }, 20000);
+    });
+  </script>
+</body>
+</html>
